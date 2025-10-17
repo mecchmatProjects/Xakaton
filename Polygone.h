@@ -36,6 +36,7 @@ extern void showPolygonesFile(FILE* fp);
 
 // === Функції порівняння та пошуку ===
 
+
 // Перевірити, чи два багатокутники є однаковими
 extern int isEqualPolygone(const Polygone* p1, const Polygone* p2);
 

@@ -155,6 +155,7 @@ int minAreaPolygone(FILE* fp, Polygone* p_min) {
         temp_p.vertice = (TPoint*)malloc(temp_p.n * sizeof(TPoint));
         fread(temp_p.vertice, sizeof(TPoint), temp_p.n, fp);
 
+
         PTYPE area = area_polygon(&temp_p);
         if (!found || area < min_area) {
             min_area = area;

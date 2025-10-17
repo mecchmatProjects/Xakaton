@@ -112,6 +112,7 @@ PTYPE length_point_line(TPoint p, TLine line) {
     return fabs(line.a * p.x + line.b * p.y + line.c) / sqrt(line.a * line.a + line.b * line.b);
 }
 
+
 TPoint* intersect_rays(TRay r1, TRay r2) {
     // Промені - це частини прямих. Спочатку знайдемо перетин прямих.
     // r1: p1 + t * v1 (t >= 0)
