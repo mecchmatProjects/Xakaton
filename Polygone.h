@@ -44,7 +44,8 @@ extern int minAreaPolygone(FILE* fp, Polygone* p);
 
 extern NTYPE numberConvexPolygones(FILE* fp);
 
-extern NTYPE conditionPolygones(FILE* fp, predicatPolygone Q, const char* fname);
+extern NTYPE conditionPolygones(FILE* fp, predicatPolygone Q, const char* fname); // My
+
 
 extern NTYPE pointsPolygones(FILE* fp, TPoint p);
 
@@ -78,3 +79,6 @@ extern Polygone convex_wrapper(const Polygone* p1);
 //Знайти мінімальний по площі багатокутник, такий що кожна точка будь-якого ребра цього багаткутника знаходиться на відстані не більше 1 від даного багатокутника
 extern Polygone wrapper_distance(const Polygone* p1, PTYPE dist);
 #endif // end of _TYPES_H_
+
+// My updates
+typedef int (*predicatPolygone)(const Polygone* p);
