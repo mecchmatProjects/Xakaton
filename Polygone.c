@@ -8,7 +8,6 @@
 #include "vectors.h"
 #include "Polygone.h"
 #include "file_forming.h"
-#include "vectors.h"
 #include "LineRays.h"
 
 #define LEN 30
@@ -40,11 +39,21 @@ int inputPolygone(FILE* fp, Polygone* p){
     if (!p->vertice) return FALSE; // Помилка виділення пам'яті
 
     for (NTYPE i = 0; i < n; ++i) {
+        int scan_res = 0;
         if (is_console) {
             printf("Вершина %u (x y): ", i + 1);
-            fscanf(stdin, "%f %f", &p->vertice[i].x, &p->vertice[i].y);
+            scan_res = fscanf(stdin, "%f %f", &p->vertice[i].x, &p->vertice[i].y);
         } else {
-            fscanf(fp, "%f %f", &p->vertice[i].x, &p->vertice[i].y);
+            scan_res = fscanf(fp, "%f %f", &p->vertice[i].x, &p->vertice[i].y);
+        }
+        
+        // Перевіряємо, чи введено два числа
+        if (scan_res != 2) {
+            printf("Помилка введення для вершини %u!\n", i + 1);
+            free(p->vertice);
+            p->vertice = NULL;
+            p->n = 0;
+            return FALSE;
         }
     }
     return TRUE;
@@ -80,75 +89,63 @@ void showPolygonesFile(FILE* fp) {
     free(polygones);
 }
 
-int deletePolygonesFile(FILE* fp, NTYPE k) {
+int deletePolygonesFile(const char* fname, NTYPE k) {
+    FILE* fp = fopen(fname, "rb");
     if (!fp) return FALSE;
 
-    //Зчитуємо всі полігони у пам’ять (масив із сентінелом n==0)
-    Polygone* arr = readPolygones(fp);
-    if (!arr) return FALSE;
+    unsigned int M;
+    if (fread(&M, sizeof(unsigned int), 1, fp) != 1) {
+        fclose(fp);
+        return FALSE;
+    }
 
-    //Порахувати M за сентінелом
-    unsigned M = 0;
-    while (arr[M].n != 0) M++;
-
-    //Перевірити індекс
     if (k >= M) {
-        for (unsigned i = 0; i < M; ++i) free(arr[i].vertice);
-        free(arr);
+        fclose(fp);
         return FALSE;
     }
 
-    //Перевідкрити файл у режимі "wb" щоб обнулити та перезаписати
-    if (!freopen(NULL, "wb", fp)) {
-        for (unsigned i = 0; i < M; ++i) free(arr[i].vertice);
-        free(arr);
-        return FALSE;
-    }
-
-    //Записати нове M і всі полігони, крім видаленого k
-    unsigned NM = M - 1;
-    if (fwrite(&NM, sizeof(unsigned), 1, fp) != 1) {
-        for (unsigned i = 0; i < M; ++i) free(arr[i].vertice);
-        free(arr);
+    Polygone* arr = (Polygone*)malloc(M * sizeof(Polygone));
+    if (!arr) {
+        fclose(fp);
         return FALSE;
     }
 
     for (unsigned i = 0; i < M; ++i) {
-        if (i == k) {                 // пропустити видаляємий
-            free(arr[i].vertice);
-            continue;
-        }
-        // writePolygone_binary записує: n, потім n пар (x,y)
-        if (!writePolygone_binary(fp, &arr[i])) {
-            // звільнити решту та впасти
-            free(arr[i].vertice);
-            for (unsigned j = i + 1; j < M; ++j) free(arr[j].vertice);
-            free(arr);
-            return FALSE;
+        fread(&arr[i].n, sizeof(NTYPE), 1, fp);
+        arr[i].vertice = (TPoint*)malloc(arr[i].n * sizeof(TPoint));
+        fread(arr[i].vertice, sizeof(TPoint), arr[i].n, fp);
+    }
+    fclose(fp);
+
+    fp = fopen(fname, "wb");
+    if (!fp) {
+        for (unsigned i = 0; i < M; ++i) free(arr[i].vertice);
+        free(arr);
+        return FALSE;
+    }
+    
+    unsigned NM = M - 1;
+    fwrite(&NM, sizeof(unsigned), 1, fp);
+
+    for (unsigned i = 0; i < M; ++i) {
+        if (i != k) {
+            writePolygone_binary(fp, &arr[i]);
         }
         free(arr[i].vertice);
     }
-
+    
     free(arr);
+    fclose(fp);
     return TRUE;
-}
-
-
-PTYPE area(TPoint p1, TPoint p2, TPoint p3) {
-    TVECT v1 = setVector(p2, p1);
-    TVECT v2 = setVector(p2, p3);
-    PTYPE par_area = lengthVector(vectorMultVector(v1, v2));
-    return par_area / 2.0;
 }
 
 PTYPE area_polygon(const Polygone* p) {
     if (p->n < 3) return 0.0f;
 
     PTYPE area = 0.0;
-    // Area = 0.5 * |(x1y2 - y1x2) + (x2y3 - y2x3) + ... + (xny1 - ynx1)|
     for (NTYPE i = 0; i < p->n; ++i) {
         TPoint p1 = p->vertice[i];
-        TPoint p2 = p->vertice[(i + 1) % p->n]; // % для замикання контуру
+        TPoint p2 = p->vertice[(i + 1) % p->n];
         area += (p1.x * p2.y - p2.x * p1.y);
     }
     return fabs(area) / 2.0;
