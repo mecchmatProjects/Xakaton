@@ -23,8 +23,26 @@ int inputPolygone(FILE* fp, Polygone* p){
     
     p->n = n;
     p->vertice = (TPoint*) malloc(n * 2 * sizeof(TPoint));
+    if (!p->vertice) return FALSE;
     int scan_res = 0;
-    // ....
+    for (int i = 0; i < n; i++) {
+        if (fp)
+            scan_res = fscanf(fp, "%lf %lf", &p->vertice[i].x, &p->vertice[i].y);
+        else {
+            printf("Вершина %d (x y): ", i + 1);
+            scan_res = fscanf(stdin, "%lf %lf", &p->vertice[i].x, &p->vertice[i].y);
+        }
+
+        // перевіряємо, чи введено два числа
+        if (scan_res != 2) {
+            printf("❌ Помилка введення для вершини %d!\n", i + 1);
+            free(p->vertice);
+            p->vertice = NULL;
+            return FALSE;
+        }
+    }
+
+    return TRUE;
 }
 
 int writePolygone_binary(FILE* fp, Polygone* p) {
@@ -44,7 +62,15 @@ int writePolygone_binary(FILE* fp, Polygone* p) {
 int writePolygone(FILE* fp, Polygone* p) {
     assert(fp != 0);
     assert(p != 0);
-    //
+    // запишемо кількість вершин
+    fprintf(fp, "%u\n", p->n);
+
+    // запишемо координати
+    for (int i = 0; i < p->n; i++) {
+        fprintf(fp, "%.6lf %.6lf\n", p->vertice[i].x, p->vertice[i].y);
+    }
+
+    return 1;
     
 }
 
