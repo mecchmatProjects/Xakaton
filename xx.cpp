@@ -24,7 +24,7 @@ void ShowPolygineFile(FILE* fp, int k) {
         }
         for (int j = 0; j < vertices_count; j++) {
             float x, y;
-            if (fscanf (fp, "%d %f %f", &x, &y) != 2) {
+            if (fscanf (fp, "%f %f", &x, &y) != 2) {
                 printf("Error\n");
                 return ;
             }

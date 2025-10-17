@@ -1,5 +1,5 @@
 #pragma once
-
+#include "Polygone.h"
 
 int testVectors(); // test all in 1 file they are simple
 
@@ -34,7 +34,7 @@ extern NTYPE conditionPolygones(FILE* fp, predicatPolygone Q, const char* fname)
 extern NTYPE pointsPolygones(FILE* fp, TPoint p);
 extern NTYPE linePolygones(FILE* fp, TLine L);
 extern NTYPE rayPolygones(FILE* fp, TRay R);    
-....
+
 
 
 

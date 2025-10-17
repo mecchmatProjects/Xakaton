@@ -1,3 +1,4 @@
+#include <math.h>
 
 TVECT setVector(TPoint x, TPoint y){
     TVECT v = {y.x - x.x, y.y - x.y, 0};

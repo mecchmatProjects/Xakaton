@@ -60,7 +60,7 @@ float createPoly2(int n, char* fname){
 			float v2 = rand() / (float)RAND_MAX;
 
 			int sign1 = (i>n/2)?-1:1;
-			int sign2 = 2*((i/(n/4)%2)-1;
+			int sign2 = 2*((i / (n / 4)) % 2) - 1;
 
 			p.vertex[j].x =  p.vertex[j-1].x + sign1 * v1; 
 			p.vertex[j].y =  p.vertex[j-1].y + sign2 * v2;
