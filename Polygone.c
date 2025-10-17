@@ -64,9 +64,6 @@ void showPolygonesFile(FILE* fp) {
     Polygone* polygones = readPolygones(fp); // Функція з file_forming.c
     if (!polygones) return;
 
-    // Перший елемент масиву polygones може містити загальну кількість
-    // Або цикл має бути іншим, залежно від реалізації readPolygones.
-    // Припускаємо, що readPolygones повертає масив, де останній елемент має p.n == 0
     int i = 0;
     while(polygones[i].n != 0) {
         outputPolygon(polygones[i]); // Функція з file_forming.c
@@ -84,7 +81,6 @@ int freePolygone(Polygone* p) {
     }
     return 0;
 }
-
 
 PTYPE area_polygon(const Polygone* p) {
     if (p->n < 3) return 0.0f;
@@ -123,25 +119,23 @@ int isConvexPolygone(const Polygone* p) {
         TVECT v1 = setVector(p1, p2);
         TVECT v2 = setVector(p2, p3);
 
-        // Векторний добуток для 2D векторів (v1.x, v1.y) та (v2.x, v2.y)
-        // фактично є Z-компонентою 3D векторного добутку.
         PTYPE cross_product_z = v1.x * v2.y - v1.y * v2.x;
 
-        if (!isEqual(cross_product_z, 0.0f)) { // Ігноруємо колінеарні точки
+        if (!isEqual(cross_product_z, 0.0f)) {
             int current_sign = (cross_product_z > 0) ? 1 : -1;
-            if (sign == 0) { // Перший значущий поворот
+            if (sign == 0) {
                 sign = current_sign;
-            } else if (sign != current_sign) { // Змінився напрямок повороту
-                return FALSE; // Багатокутник не є опуклим
+            } else if (sign != current_sign) {
+                return FALSE;
             }
         }
     }
-    return TRUE; // Всі повороти в один бік
+    return TRUE;
 }
 
 int minAreaPolygone(FILE* fp, Polygone* p_min) {
     assert(fp != NULL);
-    rewind(fp); // Переконуємось, що читаємо з початку файлу
+    rewind(fp);
 
     unsigned int M;
     if (fread(&M, sizeof(unsigned int), 1, fp) != 1) return FALSE;
@@ -155,12 +149,11 @@ int minAreaPolygone(FILE* fp, Polygone* p_min) {
         temp_p.vertice = (TPoint*)malloc(temp_p.n * sizeof(TPoint));
         fread(temp_p.vertice, sizeof(TPoint), temp_p.n, fp);
 
-
         PTYPE area = area_polygon(&temp_p);
         if (!found || area < min_area) {
             min_area = area;
             found = TRUE;
-            if (p_min->vertice) free(p_min->vertice); // Звільняємо стару пам'ять
+            if (p_min->vertice) free(p_min->vertice);
             p_min->n = temp_p.n;
             p_min->vertice = (TPoint*)malloc(temp_p.n * sizeof(TPoint));
             memcpy(p_min->vertice, temp_p.vertice, temp_p.n * sizeof(TPoint));
@@ -222,11 +215,9 @@ int pointsPolygoneInside(const Polygone* p, TPoint p0) {
         TPoint p1 = p->vertice[i];
         TPoint p2 = p->vertice[(i + 1) % p->n];
 
-        // Перевірка, чи точка лежить на ребрі
         TSegment s = {p1, p2};
         if (isEqual(length_point_segment(p0, s), 0.0f)) return TRUE;
 
-        // Алгоритм трасування променя (Ray Casting)
         if (((p1.y > p0.y) != (p2.y > p0.y)) &&
             (p0.x < (p2.x - p1.x) * (p0.y - p1.y) / (p2.y - p1.y) + p1.x)) {
             intersections++;
@@ -264,7 +255,6 @@ int isIntersectPolygones(const Polygone* p1, const Polygone* p2) {
     return FALSE;
 }
 
-// Допоміжні функції для qsort та cross_product для convex_wrapper
 static int comparePoints(const void* a, const void* b) {
     TPoint* p1 = (TPoint*)a; TPoint* p2 = (TPoint*)b;
     if (!isEqual(p1->x, p2->x)) return (p1->x < p2->x) ? -1 : 1;
@@ -302,8 +292,7 @@ Polygone convex_wrapper(const Polygone* p1) {
     return hull;
 }
 
-
-// ЗАГЛУШКИ для надскладних функцій, щоб проект компілювався
+// ЗАГЛУШКИ
 Polygone intersect_polygone(const Polygone* p1, const Polygone* p2) {
     printf("Warning: intersect_polygone is not implemented.\n");
     return (Polygone){0, NULL};
