@@ -58,7 +58,15 @@ void showPolygonesFile(FILE* fp) {
         outputPolygon(polygones[i]); 
         i++;
     }
+    for (int j = 0; j <= i; j++) {
+        if (polygones[j].vertice != NULL) {
+            free(polygones[j].vertice);
+        }
+    }
+    free(polygones);
 }
+
+
 
 PTYPE area(TPoint p1, TPoint p2, TPoint p3) {
     TVECT v1 = setVector(p2, p1);
@@ -73,8 +81,15 @@ int freePolygone(Polygone* p){
 }
 
 PTYPE area_polygon(Polygone p) {
- 
- 
+    if (p.n < 3) return 0.0;
+
+    PTYPE total_area = 0.0;
+    for (int i = 0; i < p.n; i++) {
+        TPoint current = p.vertice[i];
+        TPoint next = p.vertice[(i + 1) % p.n];
+        total_area += (current.x * next.y - next.x * current.y);
+    }
+    return fabs(total_area) / 2.0;
 }
 
 NTYPE inPolygon(Polygone p, TPoint point) {
@@ -113,6 +128,7 @@ NTYPE pointsPolygones(FILE* fp, TPoint point) {
     return res;
 }
 
+
 int minAreaPolygone(FILE* fp, Polygone* p) {
     assert(fp != NULL);
     Polygone temp;
@@ -145,6 +161,7 @@ int minAreaPolygone(FILE* fp, Polygone* p) {
     }
     return found;
 }
+
 
 int isConvexPolygone(const Polygone* p) {
     if (p->n < 3) return FALSE;
