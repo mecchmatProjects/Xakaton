@@ -2,6 +2,7 @@
 #include "Polygone.h"
 #include <assert.h>
 
+
 int test_isEqual() {
     PTYPE a = 5.f, b = 7.f, c = 5.f;
     if (!isEqual(a, b) && isEqual(a, c)) {
