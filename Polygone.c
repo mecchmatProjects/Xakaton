@@ -3,10 +3,17 @@
 #include <math.h>
 #include <assert.h>
 
+#include "Types.h"
+#include "vectors.h"
 #include "Polygone.h"
 #include "file_forming.h"
 
 #define LEN 30
+
+int freePolygone(Polygone* p){
+    if(p->vertice)free(p->vertice);
+    return 0;
+}
 
 int inputPolygone(FILE* fp, Polygone* p){
 
@@ -60,6 +67,60 @@ void showPolygonesFile(FILE* fp) {
     }
 }
 
+int deletePolygonesFile(FILE* fp, NTYPE k) {
+    if (!fp) return FALSE;
+
+    //Зчитуємо всі полігони у пам’ять (масив із сентінелом n==0)
+    Polygone* arr = readPolygones(fp);
+    if (!arr) return FALSE;
+
+    //Порахувати M за сентінелом
+    unsigned M = 0;
+    while (arr[M].n != 0) M++;
+
+    //Перевірити індекс
+    if (k >= M) {
+        for (unsigned i = 0; i < M; ++i) free(arr[i].vertice);
+        free(arr);
+        return FALSE;
+    }
+
+    //Перевідкрити файл у режимі "wb" щоб обнулити та перезаписати
+    if (!freopen(NULL, "wb", fp)) {
+        for (unsigned i = 0; i < M; ++i) free(arr[i].vertice);
+        free(arr);
+        return FALSE;
+    }
+
+    //Записати нове M і всі полігони, крім видаленого k
+    unsigned NM = M - 1;
+    if (fwrite(&NM, sizeof(unsigned), 1, fp) != 1) {
+        for (unsigned i = 0; i < M; ++i) free(arr[i].vertice);
+        free(arr);
+        return FALSE;
+    }
+
+    for (unsigned i = 0; i < M; ++i) {
+        if (i == k) {                    // пропустити видаляємий
+            free(arr[i].vertice);
+            continue;
+        }
+        // writePolygone_binary записує: n, потім n пар (x,y)
+        if (!writePolygone_binary(fp, &arr[i])) {
+            // звільнити решту та впасти
+            free(arr[i].vertice);
+            for (unsigned j = i + 1; j < M; ++j) free(arr[j].vertice);
+            free(arr);
+            return FALSE;
+        }
+        free(arr[i].vertice);
+    }
+
+    free(arr);
+    return TRUE;
+}
+
+
 PTYPE area(TPoint p1, TPoint p2, TPoint p3) {
     TVECT v1 = setVector(p2, p1);
     TVECT v2 = setVector(p2, p3);
@@ -67,10 +128,6 @@ PTYPE area(TPoint p1, TPoint p2, TPoint p3) {
     return par_area / 2.0;
 }
 
-int freePolygone(Polygone* p){
-    if(p->vertice)free(p->vertice);
-    return 0;
-}
 
 PTYPE area_polygon(Polygone p) {
  
