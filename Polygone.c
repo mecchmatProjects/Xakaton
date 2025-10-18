@@ -1,3 +1,4 @@
+```c
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -17,7 +18,7 @@ int freePolygone(Polygone* p){
     return 0;
 }
 
-int inputPolygone(FILE* fp, Polygone* p){
+int inputPolygone(Polygone* p, FILE* fp){
     NTYPE n;
     int is_console = (fp == NULL);
 
@@ -28,7 +29,7 @@ int inputPolygone(FILE* fp, Polygone* p){
         fscanf_s(fp, "%u", &n);
     }
 
-    if (n < 3) { // Багатокутник повинен мати хоча б 3 вершини
+    if (n < 3) {
         p->n = 0;
         p->vertice = NULL;
         return FALSE;
@@ -36,7 +37,7 @@ int inputPolygone(FILE* fp, Polygone* p){
 
     p->n = n;
     p->vertice = (TPoint*) malloc(n * sizeof(TPoint));
-    if (!p->vertice) return FALSE; // Помилка виділення пам'яті
+    if (!p->vertice) return FALSE;
 
     for (NTYPE i = 0; i < n; ++i) {
         int scan_res = 0;
@@ -46,16 +47,14 @@ int inputPolygone(FILE* fp, Polygone* p){
         } else {
             scan_res = fscanf_s(fp, "%f %f", &p->vertice[i].x, &p->vertice[i].y);
         }
-        
-        // Перевіряємо, чи введено два числа
         if (scan_res != 2) {
-            printf("Помилка введення для вершини %u!\n", i + 1);
             free(p->vertice);
             p->vertice = NULL;
             p->n = 0;
             return FALSE;
         }
     }
+
     return TRUE;
 }
 
@@ -217,7 +216,7 @@ int maxPerimeterPolygone(FILE* fp, Polygone* out) {
         PTYPE per = perimeterPolygone(&cur);
         if (per > bestPer) {
             if (best.vertice) free(best.vertice);
-            best = cur;          // забираємо володіння пам'яттю
+            best = cur;      // забираємо володіння пам'яттю
             bestPer = per;
         } else {
             free(cur.vertice);
@@ -400,3 +399,4 @@ Polygone wrapper_distance(const Polygone* p1, PTYPE dist) {
     printf("Warning: wrapper_distance is not implemented.\n");
     return (Polygone){0, NULL};
 }
+```
