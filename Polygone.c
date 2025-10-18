@@ -399,3 +399,75 @@ Polygone wrapper_distance(const Polygone* p1, PTYPE dist) {
     printf("Warning: wrapper_distance is not implemented.\n");
     return (Polygone){0, NULL};
 }
+
+/*
+============================task-e=======================================
+*/
+
+int isEqualPolygone(const Polygone* p1, const Polygone* p2) {
+    assert(p1 != NULL);
+    assert(p2 != NULL);
+
+    // 1. Перевіряємо, чи збігається кількість вершин
+    if (p1->n != p2->n) {
+        return FALSE;
+    }
+
+    // 2. Послідовно перевіряємо координати кожної вершини
+    for (NTYPE i = 0; i < p1->n; i++) {
+        // Використовуємо isEqual для коректного порівняння чисел з плаваючою комою
+        if (!isEqual(p1->vertice[i].x, p2->vertice[i].x) || !isEqual(p1->vertice[i].y, p2->vertice[i].y)) {
+            return FALSE; // Знайдено першу невідповідність
+        }
+    }
+
+    // Якщо всі вершини збіглися, багатокутники рівні
+    return TRUE;
+}
+
+int isPresentPolygone(FILE* fp, const Polygone* p) {
+    assert(fp != NULL);
+    assert(p != NULL);
+
+    // Читаємо загальну кількість багатокутників у файлі
+    unsigned int M;
+    if (fread(&M, sizeof(unsigned int), 1, fp) != 1) {
+        return FALSE; // Помилка читання або порожній файл
+    }
+
+    Polygone temp_p;
+    temp_p.vertice = NULL;
+    int found = FALSE;
+
+    for (unsigned int i = 0; i < M; i++) {
+        // Читаємо наступний багатокутник з файлу
+        fread(&temp_p.n, sizeof(unsigned int), 1, fp);
+        temp_p.vertice = (TPoint*)malloc(temp_p.n * sizeof(TPoint));
+        if (temp_p.vertice == NULL) {
+            // Не вдалося виділити пам'ять, перериваємо пошук
+            break;
+        }
+
+        for (int j = 0; j < temp_p.n; j++) {
+            fread(&temp_p.vertice[j].x, sizeof(PTYPE), 1, fp);
+            fread(&temp_p.vertice[j].y, sizeof(PTYPE), 1, fp);
+        }
+
+        // Порівнюємо прочитаний багатокутник із тим, що шукаємо
+        if (isEqualPolygone(&temp_p, p)) {
+            found = TRUE;
+            free(temp_p.vertice); // Звільняємо пам'ять
+            break; // Знайшли, можна завершувати цикл
+        }
+
+        // Якщо не знайшли, просто звільняємо пам'ять і продовжуємо
+        free(temp_p.vertice);
+        temp_p.vertice = NULL;
+    }
+
+    // Повертаємо курсор файлу в початкове положення, щоб не впливати
+    // на подальші операції з файлом (добра практика)
+    fseek(fp, 0, SEEK_SET);
+
+    return found;
+}
