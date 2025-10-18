@@ -268,7 +268,7 @@ int testInputPolygone(){
     printf("first passed");
 
     // Test 2 : file input
-    FILE* fp = fopen("1.txt","rt");
+    FILE* fp = fopen("test_1.txt","rt");
     Polygone p;
     int r2 = inputPolygone(fp, &p);
     if(r2!= TRUE) return FALSE;
@@ -292,7 +292,7 @@ int testInputPolygone(){
     freePolygone(&p2);
 
     // Test 3 : file input - bad file
-    fp = fopen("xxx.txt","rt");
+    fp = fopen("test_6.txt","rt");
     Polygone p3;
     int r4 = inputPolygone(fp, &p3);
     if(r4!= FALSE) return FALSE;
@@ -300,5 +300,84 @@ int testInputPolygone(){
     freePolygone(&p3);
     printf("Input tests passed");
 
+    return TRUE;
+}
+
+int testWritePolygones() {
+printf("=== Тест 1: запис багатокутника, введеного з консолі ===\n");
+    {
+        FILE* fout = fopen("poly_console.dat", "wb");
+        if (!fout) {
+            printf("Не вдалося створити файл poly_console.dat\n");
+            return FALSE;
+        }
+
+        Polygone p;
+        if (inputPolygone(NULL, &p)) {  // вводимо вручну
+            writePolygone_binary(fout, &p);
+            freePolygone(&p);
+            printf("Багатокутник успішно записано з консолі.\n");
+        } else {
+            printf("Помилка введення з консолі.\n");
+        }
+        fclose(fout);
+    }
+
+    printf("\n=== Тест 2: запис одного багатокутника з файлу ===\n");
+    {
+        FILE* fin = fopen("test_1.txt", "r");
+        if (!fin) {
+            printf("Не знайдено test_1.txt\n");
+            return FALSE;
+        }
+        FILE* fout = fopen("poly_one.dat", "wb");
+        if (!fout) {
+            printf("Не вдалося створити poly_one.dat\n");
+            fclose(fin);
+            return FALSE;
+        }
+
+        Polygone p;
+        if (inputPolygone(fin, &p)) {
+            writePolygone_binary(fout, &p);
+            freePolygone(&p);
+            printf("Один багатокутник із файлу записано успішно.\n");
+        } else {
+            printf("Помилка при читанні з test_1.txt\n");
+        }
+
+        fclose(fin);
+        fclose(fout);
+    }
+
+    printf("\n=== Тест 3: запис усіх багатокутників з файлу ===\n");
+    {
+        FILE* fin = fopen("test_1.txt", "r");
+        if (!fin) {
+            printf("Не знайдено test_1.txt\n");
+            return FALSE;
+        }
+        FILE* fout = fopen("poly_all.dat", "wb");
+        if (!fout) {
+            printf("Не вдалося створити poly_all.dat\n");
+            fclose(fin);
+            return FALSE;
+        }
+
+        Polygone p;
+        int count = 0;
+        while (inputPolygone(fin, &p)) {  // читаємо всі
+            writePolygone_binary(fout, &p);
+            freePolygone(&p);
+            count++;
+        }
+
+        fclose(fin);
+        fclose(fout);
+
+        printf("Записано %d багатокутників у poly_all.dat\n", count);
+    }
+
+    printf("\n=== Усі 3 тести виконано ===\n");
     return TRUE;
 }

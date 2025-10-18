@@ -17,18 +17,18 @@ int freePolygone(Polygone* p){
     return 0;
 }
 
-int inputPolygone(FILE* fp, Polygone* p){
+int inputPolygone(Polygone* p, FILE* fp){
     NTYPE n;
     int is_console = (fp == NULL);
 
     if (is_console) {
         printf("Введіть кількість вершин N = ");
-        fscanf(stdin, "%u", &n);
+        if (fscanf(stdin, "%u", &n) != 1) return FALSE;
     } else {
-        fscanf(fp, "%u", &n);
+        if (fscanf(fp, "%u", &n) != 1) return FALSE;  // кінець файлу
     }
 
-    if (n < 3) { // Багатокутник повинен мати хоча б 3 вершини
+    if (n < 3) {
         p->n = 0;
         p->vertice = NULL;
         return FALSE;
@@ -36,7 +36,7 @@ int inputPolygone(FILE* fp, Polygone* p){
 
     p->n = n;
     p->vertice = (TPoint*) malloc(n * sizeof(TPoint));
-    if (!p->vertice) return FALSE; // Помилка виділення пам'яті
+    if (!p->vertice) return FALSE;
 
     for (NTYPE i = 0; i < n; ++i) {
         int scan_res = 0;
@@ -46,16 +46,14 @@ int inputPolygone(FILE* fp, Polygone* p){
         } else {
             scan_res = fscanf(fp, "%f %f", &p->vertice[i].x, &p->vertice[i].y);
         }
-        
-        // Перевіряємо, чи введено два числа
         if (scan_res != 2) {
-            printf("Помилка введення для вершини %u!\n", i + 1);
             free(p->vertice);
             p->vertice = NULL;
             p->n = 0;
             return FALSE;
         }
     }
+
     return TRUE;
 }
 
