@@ -37,6 +37,25 @@ extern int isPresentPolygone(FILE* fp, const Polygone* p);
  extern NTYPE linePolygones(FILE* fp, TLine L);
 
  extern NTYPE rayPolygones(FILE* fp, TRay R);
+// extern int test_isEqual();
+// extern int test_isEqual2();
+// extern int test_setVector();
+// extern int test_lengthVector();
+// extern int test_addVector();
+// extern int test_multVector();
+// extern int test_subVector();
+// extern int test_scalarMultVector();
+// extern int test_vectorMultVector();
+// extern int test_area();
+// extern int test_area_polygon();
+// extern int test_inPolygon();
+// extern int test_pointsPolygones(); // NTYPE у .c, але повертає int-сумісний TRUE/FALSE
+// extern int test_isConvexPolygone_convex();
+// extern int test_isConvexPolygone_nonConvex();
+// extern int test_isConvexPolygone_triangle();
+// extern int test_isConvexPolygone_invalid();
+// extern int test_minAreaPolygone();
+// extern int test_numberConvexPolygones();
 
 
 

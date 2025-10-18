@@ -142,3 +142,63 @@ TPoint* intersect_rays(TRay r1, TRay r2) {
 
     return NULL; // Перетин прямих є, але він поза межами одного з променів.
 }
+
+
+PTYPE length_point_ray(TPoint p, TRay ray) {
+    TPoint A = ray.start_point;
+    TPoint B = ray.direction_point; // B - це просто точка, що задає напрямок
+
+    TVECT v_AB = setVector(A, B); // Вектор напрямку променя
+    TVECT v_AP = setVector(A, p); // Вектор від початку променя до точки
+
+    PTYPE len_sq = scalarMultVector(v_AB, v_AB);
+    if (isEqual(len_sq, 0.0f)) {
+        return lengthVector(v_AP); // Промінь - це точка
+    }
+
+    // Знаходимо проекцію точки P на нескінченну пряму, що містить промінь
+    PTYPE t = scalarMultVector(v_AP, v_AB) / len_sq;
+
+    TPoint closest_point;
+    if (t < 0.0) {
+        // Проекція знаходиться "позаду" початкової точки променя.
+        // Найближча точка - це A.
+        closest_point = A;
+    } else {
+        // Проекція знаходиться на промені (або в точці A, якщо t=0).
+        closest_point.x = A.x + t * v_AB.x;
+        closest_point.y = A.y + t * v_AB.y;
+    }
+
+    TVECT dist_vec = setVector(p, closest_point);
+    return lengthVector(dist_vec);
+}
+
+
+PTYPE length_segments(TSegment line1, TSegment line2) {
+    // 1. Перевіряємо, чи відрізки перетинаються.
+    TPoint* intersection = intersect_segments(line1, line2);
+    if (intersection != NULL) {
+        free(intersection);
+        return 0.0f; // Якщо перетинаються, відстань - нуль.
+    }
+
+    // 2. Якщо не перетинаються, найкоротша відстань буде
+    //    або від кінця одного відрізка до іншого відрізка.
+
+    // Відстані від кінців line1 до відрізка line2
+    PTYPE d1 = length_point_segment(line1.pointA, line2);
+    PTYPE d2 = length_point_segment(line1.pointB, line2);
+
+    // Відстані від кінців line2 до відрізка line1
+    PTYPE d3 = length_point_segment(line2.pointA, line1);
+    PTYPE d4 = length_point_segment(line2.pointB, line1);
+
+    // Знаходимо мінімум з цих чотирьох значень
+    PTYPE min_dist = d1;
+    if (d2 < min_dist) min_dist = d2;
+    if (d3 < min_dist) min_dist = d3;
+    if (d4 < min_dist) min_dist = d4;
+
+    return min_dist;
+}
