@@ -1,15 +1,14 @@
-#ifndef _POLYGONE_H_
-#define _POLYGONE_H_
+#ifndef POLYGONE_H
+#define POLYGONE_H
 
 #include "stdio.h"
-#include "stdlib.h"
 
 #include "Types.h"
 #include "Predicat.h"
 
 
 // Ввести багатокутник з консолі (якщо fp == NULL) або з текстового файлу
-extern int inputPolygone(Polygone* p, FILE* fp);
+extern int inputPolygone(FILE* fp, Polygone* p);
 
 // Вивести багатокутник в консоль (якщо fp == NULL) або в текстовий файл
 extern void outputPolygone(const Polygone* p, FILE* fp);
@@ -36,7 +35,6 @@ extern void showPolygonesFile(FILE* fp);
 
 // === Функції порівняння та пошуку ===
 
-
 // Перевірити, чи два багатокутники є однаковими
 extern int isEqualPolygone(const Polygone* p1, const Polygone* p2);
 
@@ -57,7 +55,7 @@ extern int isConvexPolygone(const Polygone* p);
 // === Функції для аналізу набору багатокутників у файлі ===
 
 // Знайти багатокутник з максимальним периметром
-extern int maxPerimeterPolygone(FILE* fp, Polygone* p);
+extern int maxPerimeterPolygone(FILE* fp, Polygone* out);
 
 // Знайти багатокутник з мінімальною площею
 extern int minAreaPolygone(FILE* fp, Polygone* p);
@@ -97,4 +95,4 @@ extern Polygone convex_wrapper(const Polygone* p1);
 // Знайти багатокутник, що знаходиться на відстані dist від даного
 extern Polygone wrapper_distance(const Polygone* p1, PTYPE dist);
 
-#endif // _POLYGONE_H_
+#endif // POLYGONE_H

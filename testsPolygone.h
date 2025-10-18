@@ -1,5 +1,6 @@
 #pragma once
-
+#include "Polygone.h"
+#include "Types.h"
 
 int testVectors(); // test all in 1 file they are simple
 
@@ -15,26 +16,28 @@ int testShowPolygoneFile(); // 3 tests
 //These all requires at least 3 tests each
 extern int isPresentPolygone(FILE* fp, const Polygone* p);
 
-int isEqualPolygone(const Polygone* p1,const Polygone* p2);
+ int isEqualPolygone(const Polygone* p1,const Polygone* p2);
 
-extern PTYPE perimeterPolygone(const Polygone* p);
+ extern PTYPE perimeterPolygone(const Polygone* p);
 
-extern PTYPE areaPolygone(const Polygone* p);
+ extern PTYPE areaPolygone(const Polygone* p);
 
-extern int isConvexPolygone(const Polygone* p);
+ extern int isConvexPolygone(const Polygone* p);
 
-extern int maxPerimeterPolygone(FILE* fp, Polygone* p);
+ extern int maxPerimeterPolygone(FILE* fp, Polygone* p);
 
-extern int minAreaPolygone(FILE* fp, Polygone* p);
+ extern int minAreaPolygone(FILE* fp, Polygone* p);
 
-extern NTYPE numberConvexPolygones(FILE* fp);
+ extern NTYPE numberConvexPolygones(FILE* fp);
 
-extern NTYPE conditionPolygones(FILE* fp, predicatPolygone Q, const char* fname);
+ extern NTYPE conditionPolygones(FILE* fp, predicatPolygone Q, const char* fname);
 
-extern NTYPE pointsPolygones(FILE* fp, TPoint p);
-extern NTYPE linePolygones(FILE* fp, TLine L);
-extern NTYPE rayPolygones(FILE* fp, TRay R);    
-....
+ extern NTYPE pointsPolygones(FILE* fp, TPoint p);
+
+ extern NTYPE linePolygones(FILE* fp, TLine L);
+
+ extern NTYPE rayPolygones(FILE* fp, TRay R);
+
 
 
 

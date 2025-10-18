@@ -1,7 +1,7 @@
-#ifndef _VECTOR_OPERATIONS_H_
-#define _VECTOR_OPERATIONS_H_
+#ifndef VECTOR_OPERATIONS_H
+#define VECTOR_OPERATIONS_H
 
-#ifdef __cpluslus
+#ifdef __cplusplus
 extern "C"{
 #endif
 
@@ -11,6 +11,7 @@ extern "C"{
 typedef struct TVECT{
     PTYPE x;
     PTYPE y;
+    PTYPE z;
 }TVECT;
 
 extern TVECT setVector(TPoint x, TPoint y);
@@ -28,5 +29,8 @@ extern TVECT vectorMultVector(TVECT v1, TVECT v2);
 extern TVECT multVector(PTYPE a, TVECT x);
 
 
-extern int isEqual(PTYPE a, PTYPE b);
-extern int isEqual2(TVECT a, TVECT b);
+#ifdef __cplusplus
+}
+#endif /// end of __cplusplus
+
+#endif
