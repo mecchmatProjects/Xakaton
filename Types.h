@@ -1,5 +1,5 @@
-#ifndef _TYPES_H_
-#define _TYPES_H_
+#ifndef TYPES_H
+#define TYPES_H
 
 #ifdef __cplusplus
 extern "C"{
@@ -55,5 +55,5 @@ typedef struct Triangle{
 }
 #endif /// end of __cplusplus
 
-#endif // end of _TYPES_H_
+#endif // end of TYPES_H
 

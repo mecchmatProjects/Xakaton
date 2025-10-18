@@ -1,7 +1,7 @@
 #include "testsPolygone.h"
 #include "Polygone.h"
-#include <assert.h>
-
+#include "vectors.h"
+#include <stdlib.h>
 
 int test_isEqual() {
     PTYPE a = 5.f, b = 7.f, c = 5.f;
@@ -112,10 +112,13 @@ int test_vectorMultVector() {
 }
 
 int test_area() {
+    NTYPE n = 3;
     TPoint p1 = {0.f, 0.f};
     TPoint p2 = {3.f, 0.f};
     TPoint p3 = {0.f, 4.f};
-    if (isEqual(area(p1, p2, p3), 6.f)) {
+    TPoint vertices[] = {p1, p2, p3};
+    Polygone p = {n, vertices};
+    if (isEqual(area_polygon(&p), 6.f)) {
         return TRUE;
     }
     else {
@@ -131,7 +134,7 @@ int test_area_polygon() {
     TPoint p3 = {4.f, 4.f};
     TPoint vertices[] = {p0, p1, p2, p3};
     Polygone p = {n, vertices};
-    if(isEqual(area_polygon(p), 16)) {
+    if(isEqual(area_polygon(&p), 16.f)) {
         return TRUE;
     }
     else {
@@ -147,10 +150,12 @@ int test_inPolygon() {
     TPoint p3 = {0.f, 4.f};
     TPoint vertices[] = {p0, p1, p2, p3};
     Polygone p = {n, vertices};
+
     TPoint test1 = {0.f, 0.f};
     TPoint test2 = {2.f, 2.f};
     TPoint test3 = {-1.f, -2.f};
-    if (inPolygon(p, test1) && inPolygon(p, test2) && !inPolygon(p, test3)) {
+
+    if (pointsPolygoneInside(&p, test1) && pointsPolygoneInside(&p, test2) && !pointsPolygoneInside(&p, test3)) {
         return TRUE;
     }
     else {
@@ -167,13 +172,13 @@ NTYPE test_pointsPolygones() {
     fclose(fp1);
 
     FILE* fp2 = fopen("polygones.txt", "r");    
-    TPoint check2 = {3.01, 3.01};
+    TPoint check2 = {3.01f, 3.01f};
     NTYPE expected2 = 2;
     NTYPE got2 = pointsPolygones(fp2, check2);
     fclose(fp2);
 
     FILE* fp3 = fopen("polygones.txt", "r");
-    TPoint check3 = {-2.5, 8.f};
+    TPoint check3 = {-2.5f, 8.f};
     NTYPE expected3 = 1;
     NTYPE got3 = pointsPolygones(fp3, check3);
     fclose(fp3);
@@ -247,7 +252,7 @@ int test_minAreaPolygone() {
 int test_numberConvexPolygones() {
     FILE* fp = fopen("file_test_for_numberConvexPolygones", "rb");
     if(fp != NULL) return FALSE;
-    int convexCount = numberConvexPolygones(fp);
+    NTYPE convexCount = numberConvexPolygones(fp);
     fclose(fp);
     return convexCount == 3 ? TRUE : FALSE;
 }
@@ -276,7 +281,7 @@ int testInputPolygone(){
     printf("second passed");
     Polygone p2;
     p2.n = 3;
-    p2.vertice = (TPoint*) calloc(6,sizeof(TPoint));
+    p2.vertice = (TPoint*)calloc(6,sizeof(TPoint));
     p2.vertice[0].x = 0;
     p2.vertice[0].y = 0;
 
