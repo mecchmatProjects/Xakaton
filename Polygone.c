@@ -1,4 +1,4 @@
-```c
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -399,4 +399,3 @@ Polygone wrapper_distance(const Polygone* p1, PTYPE dist) {
     printf("Warning: wrapper_distance is not implemented.\n");
     return (Polygone){0, NULL};
 }
-```
