@@ -18,7 +18,7 @@ int freePolygone(Polygone* p){
     return 0;
 }
 
-int inputPolygone(Polygone* p, FILE* fp){
+int inputPolygone(FILE* fp, Polygone* p){
     NTYPE n;
     int is_console = (fp == NULL);
 

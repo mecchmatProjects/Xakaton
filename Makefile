@@ -1,5 +1,5 @@
 # Всі об'єктні файли, які потрібні для проєкту
-OBJS = Polygone.o Predicat.o vectors.o linerays.o testsPolygone.o main.o
+OBJS = Polygone.o Predicat.o vectors.o linerays.o testsPolygone.o main.o file_forming.o
 
 # Ім'я фінального виконуваного файлу
 TARGET = RunTests.exe
@@ -29,6 +29,9 @@ testsPolygone.o: testsPolygone.c
 
 main.o: main.c
 	gcc -c main.c -o main.o
+
+file_forming.o: file_forming.c
+	gcc -c file_forming.c -o file_forming.o
 
 clean:
 	del *.o $(TARGET)
