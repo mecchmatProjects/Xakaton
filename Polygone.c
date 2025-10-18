@@ -1,3 +1,4 @@
+```c
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -13,7 +14,7 @@
 #define LEN 30
 
 int freePolygone(Polygone* p){
-    if(p->vertice)free(p->vertice);
+    if(p->vertice) free(p->vertice);
     return 0;
 }
 
@@ -23,9 +24,9 @@ int inputPolygone(Polygone* p, FILE* fp){
 
     if (is_console) {
         printf("Введіть кількість вершин N = ");
-        if (fscanf(stdin, "%u", &n) != 1) return FALSE;
+        fscanf_s(stdin, "%u", &n);
     } else {
-        if (fscanf(fp, "%u", &n) != 1) return FALSE;  // кінець файлу
+        fscanf_s(fp, "%u", &n);
     }
 
     if (n < 3) {
@@ -42,9 +43,9 @@ int inputPolygone(Polygone* p, FILE* fp){
         int scan_res = 0;
         if (is_console) {
             printf("Вершина %u (x y): ", i + 1);
-            scan_res = fscanf(stdin, "%f %f", &p->vertice[i].x, &p->vertice[i].y);
+            scan_res = fscanf_s(stdin, "%f %f", &p->vertice[i].x, &p->vertice[i].y);
         } else {
-            scan_res = fscanf(fp, "%f %f", &p->vertice[i].x, &p->vertice[i].y);
+            scan_res = fscanf_s(fp, "%f %f", &p->vertice[i].x, &p->vertice[i].y);
         }
         if (scan_res != 2) {
             free(p->vertice);
@@ -60,7 +61,7 @@ int inputPolygone(Polygone* p, FILE* fp){
 int writePolygone_binary(FILE* fp, Polygone* p) {
     assert(fp != NULL && p != NULL);
     fwrite(&p->n, sizeof(NTYPE), 1, fp);
-    fwrite(p->vertice, sizeof(TPoint), p->n, fp);
+    fwrite(&p->vertice, sizeof(TPoint), p->n, fp);
     return 1;
 }
 
@@ -75,12 +76,12 @@ int writePolygone_text(FILE* fp, Polygone* p) {
 }
 
 void showPolygonesFile(FILE* fp) {
-    Polygone* polygones = readPolygones(fp); // Функція з file_forming.c
+    Polygone* polygones = readPolygones(fp);
     if (!polygones) return;
 
     int i = 0;
     while(polygones[i].n != 0) {
-        outputPolygon(polygones[i]); // Функція з file_forming.c
+        outputPolygon(polygones[i]);
         freePolygone(&polygones[i]);
         i++;
     }
@@ -140,13 +141,13 @@ int deletePolygonesFile(const char* fname, NTYPE k) {
 PTYPE area_polygon(const Polygone* p) {
     if (p->n < 3) return 0.0f;
 
-    PTYPE area = 0.0;
+    PTYPE area = 0.0f;
     for (NTYPE i = 0; i < p->n; ++i) {
         TPoint p1 = p->vertice[i];
         TPoint p2 = p->vertice[(i + 1) % p->n];
         area += (p1.x * p2.y - p2.x * p1.y);
     }
-    return fabs(area) / 2.0;
+    return fabsf(area) / 2.0f;
 }
 
 PTYPE perimeterPolygone(const Polygone* p) {
@@ -187,6 +188,45 @@ int isConvexPolygone(const Polygone* p) {
     return TRUE;
 }
 
+int maxPerimeterPolygone(FILE* fp, Polygone* out) {
+    if (!fp || !out) return FALSE;
+
+    rewind(fp);
+    unsigned M = 0;
+    if (fscanf_s(fp, "%u", &M) != 1 || M == 0) return FALSE;
+
+    Polygone best = {0, NULL};
+    PTYPE bestPer = -1.0f;
+
+    for (unsigned i = 0; i < M; ++i) {
+        Polygone cur = {0, NULL};
+        if (fscanf_s(fp, "%u", &cur.n) != 1 || cur.n < 3) {
+            return FALSE;
+        }
+        cur.vertice = (TPoint*)calloc(cur.n, sizeof(TPoint));
+        if (!cur.vertice) return FALSE;
+
+        for (unsigned j=0; j<cur.n; ++j) {
+            if (fscanf_s(fp, "%f %f", &cur.vertice[j].x, &cur.vertice[j].y) != 2) {
+                free(cur.vertice);
+                return FALSE;
+            }
+        }
+
+        PTYPE per = perimeterPolygone(&cur);
+        if (per > bestPer) {
+            if (best.vertice) free(best.vertice);
+            best = cur;      // забираємо володіння пам'яттю
+            bestPer = per;
+        } else {
+            free(cur.vertice);
+        }
+    }
+
+    *out = best;
+    return TRUE;
+}
+
 int minAreaPolygone(FILE* fp, Polygone* p_min) {
     assert(fp != NULL);
     rewind(fp);
@@ -194,7 +234,7 @@ int minAreaPolygone(FILE* fp, Polygone* p_min) {
     unsigned int M;
     if (fread(&M, sizeof(unsigned int), 1, fp) != 1) return FALSE;
 
-    PTYPE min_area = -1.0;
+    PTYPE min_area = -1.0f;
     int found = FALSE;
 
     for (unsigned int i = 0; i < M; i++) {
@@ -359,3 +399,4 @@ Polygone wrapper_distance(const Polygone* p1, PTYPE dist) {
     printf("Warning: wrapper_distance is not implemented.\n");
     return (Polygone){0, NULL};
 }
+```

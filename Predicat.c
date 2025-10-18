@@ -1,6 +1,11 @@
+#include "vectors.h"
 #include "Predicat.h"
+#include "Polygone.h"
+
 #include <stdio.h>
+#include <stdlib.h>
 #include <assert.h>
+#include <math.h>
 
 int isEqual(PTYPE a, PTYPE b){
     return fabs(a-b) < __DBL_EPSILON__;

@@ -1,5 +1,5 @@
-#ifndef _LINERAYS_H_
-#define _LINERAYS_H_
+#ifndef LINERAYS_H
+#define LINERAYS_H
 
 #include "Types.h"
 
@@ -24,4 +24,4 @@ TPoint* intersect_lines(TLine l1, TLine l2);
 // Точка перетину відрізків (якщо немає - повертає NULL)
 TPoint* intersect_segments(TSegment s1, TSegment s2);
 
-#endif // _LINERAYS_H_
+#endif // LINERAYS_H

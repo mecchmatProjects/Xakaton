@@ -1,4 +1,6 @@
 #include <math.h>
+#include <math.h>
+#include "vectors.h"
 
 TVECT setVector(TPoint x, TPoint y){
     TVECT v = {y.x - x.x, y.y - x.y, 0};
@@ -6,7 +8,7 @@ TVECT setVector(TPoint x, TPoint y){
 }
 
 PTYPE lengthVector(TVECT v) {
-    PTYPE res = sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+    PTYPE res = sqrtf(v.x * v.x + v.y * v.y + v.z * v.z);
     return res;
 }
 
