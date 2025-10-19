@@ -61,7 +61,7 @@ int inputPolygone(FILE* fp, Polygone* p){
 int writePolygone_binary(FILE* fp, Polygone* p) {
     assert(fp != NULL && p != NULL);
     fwrite(&p->n, sizeof(NTYPE), 1, fp);
-    fwrite(&p->vertice, sizeof(TPoint), p->n, fp);
+    fwrite(p->vertice, sizeof(TPoint), p->n, fp);
     return 1;
 }
 
@@ -470,4 +470,172 @@ int isPresentPolygone(FILE* fp, const Polygone* p) {
     fseek(fp, 0, SEEK_SET);
 
     return found;
+}
+
+void showPolygoneFile(FILE* fp, NTYPE k) {
+    assert(fp != NULL);
+
+    // Зберігаємо поточну позицію, щоб повернути курсор на місце
+    long start_pos = ftell(fp);
+    rewind(fp);
+
+    unsigned int M; // Загальна кількість багатокутників
+    if (fread(&M, sizeof(unsigned int), 1, fp) != 1) {
+        printf("Помилка: неможливо прочитати кількість багатокутників.\n");
+        fseek(fp, start_pos, SEEK_SET); // Повертаємо курсор
+        return;
+    }
+
+    if (k >= M) {
+        printf("Помилка: індекс %u виходить за межі. У файлі %u багатокутників.\n", k, M);
+        fseek(fp, start_pos, SEEK_SET);
+        return;
+    }
+
+    // 1. Пропускаємо k-1 багатокутників
+    for (NTYPE i = 0; i < k; i++) {
+        NTYPE n_skip;
+        if(fread(&n_skip, sizeof(NTYPE), 1, fp) != 1) {
+             printf("Помилка читання файлу при пропуску.\n");
+             fseek(fp, start_pos, SEEK_SET);
+             return;
+        }
+        // Ефективно пропускаємо дані вершин, переміщуючи курсор
+        fseek(fp, n_skip * sizeof(TPoint), SEEK_CUR);
+    }
+
+    // 2. Читаємо та виводимо k-й багатокутник
+    Polygone p_target;
+    if (fread(&p_target.n, sizeof(NTYPE), 1, fp) != 1) {
+        printf("Помилка читання n для індексу %u.\n", k);
+        fseek(fp, start_pos, SEEK_SET);
+        return;
+    }
+
+    p_target.vertice = (TPoint*)malloc(p_target.n * sizeof(TPoint));
+    if (!p_target.vertice) {
+         printf("Помилка виділення пам'яті.\n");
+         fseek(fp, start_pos, SEEK_SET);
+         return;
+    }
+    if (fread(p_target.vertice, sizeof(TPoint), p_target.n, fp) != p_target.n) {
+        printf("Помилка читання вершин для індексу %u.\n", k);
+        freePolygone(&p_target);
+        fseek(fp, start_pos, SEEK_SET);
+        return;
+    }
+
+    printf("Багатокутник #%u: ", k);
+    // Використовуємо функцію outputPolygon, яка вже реалізована в file_forming.c
+    outputPolygon(p_target);
+
+    freePolygone(&p_target);
+    fseek(fp, start_pos, SEEK_SET); // Повертаємо курсор
+}
+
+static int isLineIntersectSegment(TLine L, TSegment s) {
+    // Лінія Ax + By + C = 0 ділить площину.
+    // Якщо кінці відрізка лежать по різні боки від лінії, вона його перетинає.
+    PTYPE val1 = L.a * s.pointA.x + L.b * s.pointA.y + L.c;
+    PTYPE val2 = L.a * s.pointB.x + L.b * s.pointB.y + L.c;
+
+    // Якщо добуток <= 0, точки лежать по різні боки або одна з них на лінії.
+    if (val1 * val2 <= 0.0f) {
+        // Додаткова перевірка: якщо обидві точки на лінії, але відрізок не нульовий
+        if (isEqual(val1, 0.0f) && isEqual(val2, 0.0f)) {
+            return TRUE; // Відрізок лежить на лінії
+        }
+        // Якщо хоча б одна не на лінії, а добуток <= 0, то є перетин.
+        return TRUE;
+    }
+    return FALSE;
+}
+
+static int isRayIntersectSegment(TRay R, TSegment s) {
+    // Адаптований алгоритм з intersect_segments
+    TPoint p1 = R.start_point;
+    TPoint p2 = s.pointA;
+    TVECT v1 = setVector(R.start_point, R.direction_point); // Вектор променя
+    TVECT v2 = setVector(s.pointA, s.pointB);            // Вектор відрізка
+
+    PTYPE det = v1.x * (-v2.y) - (-v2.x) * v1.y;
+    if (isEqual(det, 0.0f)) return FALSE; // Паралельні
+
+    PTYPE t = ((p2.x - p1.x) * (-v2.y) - (-v2.x) * (p2.y - p1.y)) / det;
+    PTYPE u = (v1.x * (p2.y - p1.y) - v1.y * (p2.x - p1.x)) / det;
+
+    // Умова перетину:
+    // t >= 0 (для променя)
+    // 0 <= u <= 1 (для відрізка)
+    if (t >= 0.0f && (u >= 0.0f && u <= 1.0f)) {
+        return TRUE;
+    }
+    return FALSE;
+}
+
+NTYPE linePolygones(FILE* fp, TLine L) {
+    assert(fp != NULL);
+    long start_pos = ftell(fp);
+    rewind(fp);
+
+    unsigned int M;
+    if (fread(&M, sizeof(unsigned int), 1, fp) != 1) {
+        fseek(fp, start_pos, SEEK_SET);
+        return 0;
+    }
+
+    NTYPE count = 0;
+    for (unsigned int i = 0; i < M; i++) {
+        Polygone p;
+        fread(&p.n, sizeof(NTYPE), 1, fp);
+        p.vertice = (TPoint*)malloc(p.n * sizeof(TPoint));
+        fread(p.vertice, sizeof(TPoint), p.n, fp);
+
+        // Перевіряємо перетин лінії з будь-якою стороною багатокутника
+        for (NTYPE j = 0; j < p.n; j++) {
+            TSegment s = {p.vertice[j], p.vertice[(j + 1) % p.n]};
+            if (isLineIntersectSegment(L, s)) {
+                count++;
+                break; // Знайшли перетин, переходимо до наступного багатокутника
+            }
+        }
+        freePolygone(&p);
+    }
+
+    fseek(fp, start_pos, SEEK_SET);
+    return count;
+}
+
+
+NTYPE rayPolygones(FILE* fp, TRay R) {
+    assert(fp != NULL);
+    long start_pos = ftell(fp);
+    rewind(fp);
+
+    unsigned int M;
+    if (fread(&M, sizeof(unsigned int), 1, fp) != 1) {
+        fseek(fp, start_pos, SEEK_SET);
+        return 0;
+    }
+
+    NTYPE count = 0;
+    for (unsigned int i = 0; i < M; i++) {
+        Polygone p;
+        fread(&p.n, sizeof(NTYPE), 1, fp);
+        p.vertice = (TPoint*)malloc(p.n * sizeof(TPoint));
+        fread(p.vertice, sizeof(TPoint), p.n, fp);
+
+        // Перевіряємо перетин променя з будь-якою стороною багатокутника
+        for (NTYPE j = 0; j < p.n; j++) {
+            TSegment s = {p.vertice[j], p.vertice[(j + 1) % p.n]};
+            if (isRayIntersectSegment(R, s)) {
+                count++;
+                break; // Знайшли перетин, переходимо до наступного багатокутника
+            }
+        }
+        freePolygone(&p);
+    }
+
+    fseek(fp, start_pos, SEEK_SET);
+    return count;
 }
