@@ -1,0 +1,44 @@
+#include "Polygone.h"
+
+int pointsPolygoneInside(const Polygone* p, TPoint p0) {
+    if (!p || p->n < 3) return FALSE;
+
+    int intersections = 0;
+    for (NTYPE i = 0; i < p->n; ++i) {
+        TPoint p1 = p->vertice[i];
+        TPoint p2 = p->vertice[(i + 1) % p->n];
+
+        TSegment s = {p1, p2};
+        if (isEqual(length_point_segment(p0, s), 0.0f)) return TRUE;
+
+        if (((p1.y > p0.y) != (p2.y > p0.y)) &&
+            (p0.x < (p2.x - p1.x) * (p0.y - p1.y) / (p2.y - p1.y) + p1.x)) {
+            intersections++;
+        }
+    }
+    return (intersections % 2) == 1;
+}
+
+// Кількість багатокутників, що містять задану точку
+
+NTYPE pointsPolygones(FILE* fp, TPoint point) {
+    assert(fp != NULL);
+    rewind(fp);
+    unsigned int M;
+    if (fread(&M, sizeof(unsigned int), 1, fp) != 1) return 0;
+
+    NTYPE res = 0;
+    for (unsigned int i = 0; i < M; i++) {
+        Polygone p;
+        fread(&p.n, sizeof(unsigned int), 1, fp);
+        p.vertice = (TPoint*) malloc(p.n * sizeof(TPoint));
+        fread(p.vertice, sizeof(TPoint), p.n, fp);
+
+        if (pointsPolygoneInside(&p, point)) {
+            res++;
+        }
+
+        freePolygone(&p);
+    }
+    return res;
+}
