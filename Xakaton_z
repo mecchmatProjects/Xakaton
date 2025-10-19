@@ -1,0 +1,50 @@
+#include "Polygone.h"
+
+// ------------------ Перевірка опуклості ------------------
+int isConvexPolygone(const Polygone* p) {
+    if (p->n < 3) return FALSE;     // Менше трьох вершин — не багатокутник
+
+    int sign = 0;
+    for (NTYPE i = 0; i < p->n; ++i) {
+        TPoint p1 = p->vertice[i];
+        TPoint p2 = p->vertice[(i + 1) % p->n];
+        TPoint p3 = p->vertice[(i + 2) % p->n];
+
+        TVECT v1 = setVector(p1, p2);
+        TVECT v2 = setVector(p2, p3);
+
+        PTYPE cross_product_z = v1.x * v2.y - v1.y * v2.x;
+
+        if (!isEqual(cross_product_z, 0.0f)) {
+            int current_sign = (cross_product_z > 0) ? 1 : -1;
+            if (sign == 0)
+                sign = current_sign;
+            else if (sign != current_sign)
+                return FALSE;       // напрямок змінився → не опуклий
+        }
+    }
+    return TRUE;                    // всі кути в один бік → опуклий
+}
+
+// ------------------ Підрахунок опуклих багатокутників ------------------
+int numberConvexPolygones(FILE* fp) {
+    if (!fp) return -1;
+
+    int count = 0;
+    NTYPE M;
+    if (fscanf(fp, "%u", &M) != 1) return -1;
+
+    for (NTYPE i = 0; i < M; ++i) {
+        Polygone poly;
+        if (fscanf(fp, "%u", &poly.n) != 1) return -1;
+
+        for (NTYPE j = 0; j < poly.n; ++j) {
+            if (fscanf(fp, "%f %f", &poly.vertice[j].x, &poly.vertice[j].y) != 2)
+                return -1;
+        }
+
+        if (isConvexPolygone(&poly))
+            ++count;
+    }
+    return count;
+}
