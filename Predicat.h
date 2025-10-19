@@ -18,6 +18,6 @@ typedef int (*predicatPolygone)(const Polygone* p);
 
 
 // Tests whether two floating-point numbers are equal to the specified precision // Перевірка для чисел з плаваючою крапкою
-static inline int isEqual(PTYPE a, PTYPE b) {
-    return fabs(a - b) < EPS;
-}
+// static inline int isEqual(PTYPE a, PTYPE b) {
+//     return fabs(a - b) < EPS;
+// }
