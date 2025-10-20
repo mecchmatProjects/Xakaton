@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 #include "Types.h"
 #include "Predicat.h"
@@ -18,7 +19,7 @@ float createPoly(int n, char* fname){
 	for(int i=0;i<n;i++){
 		Polygone p;
 		p.n = 3;
-		p.vertex = calloc(3, sizeof(TPoint));
+		p.vertex = (Polygone*)calloc(3, sizeof(TPoint));
 		p.vertex[0].x =  rand() / (float)RAND_MAX - 0.5; 
 		p.vertex[0].y =  rand() / (float)RAND_MAX - 0.5; 
 
@@ -56,11 +57,11 @@ float createPoly2(int n, char* fname){
 		p.vertex[0].y =  rand() / (float)RAND_MAX - 0.5; 
 
         for(int j=1;j<p.n;j++){	
-			float v1 = rand() / (float)RAND_MAX
-			float v2 = rand() / (float)RAND_MAX
+			float v1 = rand() / (float)RAND_MAX;
+			float v2 = rand() / (float)RAND_MAX;
 
 			int sign1 = (i>n/2)?-1:1;
-			int sign2 = 2*((i/(n/4)%2)-1;
+			int sign2 = 2*((i/(n/4)%2)-1);
 
 			p.vertex[j].x =  p.vertex[j-1].x + sign1 * v1; 
 			p.vertex[j].y =  p.vertex[j-1].y + sign2 * v2;

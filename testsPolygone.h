@@ -1,40 +1,54 @@
 #pragma once
+#include "Polygone.h"
+#include "Types.h"
+#include <stdio.h> // Потрібен для FILE*
+
+// --- 1. testsPolygone.c (vectors) ---
+extern int test_suite_isEqual();
+extern int test_suite_setVector();
+extern int test_suite_lengthVector();
+extern int test_suite_add_sub_Vector();
+extern int test_suite_multVector();
+extern int test_suite_scalarMultVector();
+extern int test_suite_vectorMultVector();
+
+// --- 2. testsPolygone.c (Polygone geometry) ---
+extern int test_suite_area_polygon();
+extern int test_suite_inPolygon();
+extern int test_suite_isConvexPolygone();
+extern int test_suite_isIntersectPolygones();
+extern int test_suite_convex_wrapper();
+
+// --- 3. testsPolygone.c (Polygone file analysis) ---
+extern int test_suite_isEqualPolygone();
+extern int test_suite_isPresentPolygone();
+extern int test_suite_deletePolygonesFile();
+extern int test_suite_maxPerimeterPolygone();
+extern int test_suite_minAreaPolygone();
+extern int test_suite_numberConvexPolygones();
+extern int test_suite_pointsPolygones();
+
+// --- 4. testsPolygone.c (Predicat) ---
+extern int test_suite_conditionPolygones();
+
+// --- 5. testsPolygone.c (LineRays) ---
+extern int test_suite_length_point_ray();
+extern int test_suite_length_segments();
+extern int test_suite_linePolygones();
+extern int test_suite_rayPolygones();
+
+// --- 6. testsPolygone.c (I/O) ---
+extern int test_showPolygoneFile_suite();
+extern int testInputPolygone();
+extern int testWritePolygones();
 
 
-int testVectors(); // test all in 1 file they are simple
+extern NTYPE test_pointsPolygones();
+extern int testShowPolygoneFile();
 
-int testInputPolygone(); // 3 tests enough
-
-int testWritePolygones(); // 3 tests
-
-int testDeletePolygone(); // 1 test
-
-int testShowPolygoneFile(); // 3 tests
-
-
-//These all requires at least 3 tests each
-extern int isPresentPolygone(FILE* fp, const Polygone* p);
-
-int isEqualPolygone(const Polygone* p1,const Polygone* p2);
-
+// --- Оголошення функцій, потрібних для тестів ---
+extern int isEqualPolygone(const Polygone* p1,const Polygone* p2);
 extern PTYPE perimeterPolygone(const Polygone* p);
-
-extern PTYPE areaPolygone(const Polygone* p);
-
-extern int isConvexPolygone(const Polygone* p);
-
 extern int maxPerimeterPolygone(FILE* fp, Polygone* p);
-
-extern int minAreaPolygone(FILE* fp, Polygone* p);
-
-extern NTYPE numberConvexPolygones(FILE* fp);
-
-extern NTYPE conditionPolygones(FILE* fp, predicatPolygone Q, const char* fname);
-
-extern NTYPE pointsPolygones(FILE* fp, TPoint p);
 extern NTYPE linePolygones(FILE* fp, TLine L);
-extern NTYPE rayPolygones(FILE* fp, TRay R);    
-....
-
-
-
+extern NTYPE rayPolygones(FILE* fp, TRay R);

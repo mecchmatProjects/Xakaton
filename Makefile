@@ -1,26 +1,37 @@
-all: clean RunTests.exe
+# Всі об'єктні файли, які потрібні для проєкту
+OBJS = Polygone.o Predicat.o vectors.o linerays.o testsPolygone.o main.o file_forming.o
 
-RunTests.exe: Polygone.o testPolygone.o main.o vectors.o linerays.o
-	gcc -o RunTests.exe Polygone.o testPolygone.o main.o
+# Ім'я фінального виконуваного файлу
+TARGET = RunTests.exe
 
-Polygone.o:
-	gcc Polygone.c Predicat.c -c
+# Команда, яка виконується за замовчуванням (коли ви просто пишете 'make')
+all: $(TARGET)
 
-testPolygone.o:
-	gcc testsPolygone.c Predicat.c -c
+# Правило для створення фінального файлу з об'єктних
+$(TARGET): $(OBJS)
+	gcc -o $(TARGET) $(OBJS) -lm
 
-main.o:
-	gcc testsPolygone.c main.c -c  
+# Правила для компіляції кожного .c файлу в .o файл
+Polygone.o: Polygone.c
+	gcc -c Polygone.c -o Polygone.o
 
-linerays.o:
-	gcc linerays.c -c	
+Predicat.o: Predicat.c
+	gcc -c Predicat.c -o Predicat.o
 
-vectors.o:
-	gcc vectors.c -c
+vectors.o: vectors.c
+	gcc -c vectors.c -o vectors.o
+
+linerays.o: linerays.c
+	gcc -c linerays.c -o linerays.o
+
+testsPolygone.o: testsPolygone.c
+	gcc -c testsPolygone.c -o testsPolygone.o
+
+main.o: main.c
+	gcc -c main.c -o main.o
+
+file_forming.o: file_forming.c
+	gcc -c file_forming.c -o file_forming.o
 
 clean:
-	rm -f *.o RunTests.exe 
-
-
-
-
+	del *.o $(TARGET)

@@ -26,7 +26,7 @@ void input() {
     printf("Enter the amount of polygons to write into the file : ");
     scanf("%u", &n);
     assert(n >= 0);
-    FILE* fp = fopen(filename, "w");
+    FILE* fp = fopen(filename, "wb");
     fwrite(&n, sizeof(unsigned int), 1, fp);
     for (int i = 0; i < n; i++) {
         unsigned int N;
@@ -38,9 +38,9 @@ void input() {
         p->vertice = (TPoint*) malloc(p->n * sizeof(TPoint));
         for (int j = 0; j < p->n; j++) {
             printf("Enter a vertice (x%i, y%i): ", j+1, j+1);
-            scanf("%f %f", &p->vertice[i].x, &p->vertice[i].y);
-            fwrite(&p->vertice[i].x, sizeof(float), 1, fp);
-            fwrite(&p->vertice[i].y, sizeof(float), 1, fp);
+            scanf("%f %f", &p->vertice[j].x, &p->vertice[j].y);
+            fwrite(&p->vertice[j].x, sizeof(float), 1, fp);
+            fwrite(&p->vertice[j].y, sizeof(float), 1, fp);
         }
         free(p->vertice);
         free(p);
@@ -72,7 +72,7 @@ void output() {
     char filename[LEN];
     printf("Enter a name of the file to read polygons from : ");
     scanf("%s", filename);
-    FILE* fp = fopen(filename, "r");
+    FILE* fp = fopen(filename, "rb");
     Polygone* polygones = readPolygones(fp);
     int i = 0;
     while(1) {
